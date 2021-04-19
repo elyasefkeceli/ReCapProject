@@ -25,7 +25,7 @@ namespace ConsoleUI
         private static void CarText()
         {
             CarManager carManager = new CarManager(new EfCarDal());
-            foreach (var car in carManager.GetCarDetails())
+            foreach (var car in carManager.GetCarDetails().Data)
             {
                 Console.WriteLine("Araba Açıklama  : {0}/ Araba Yaşı  :{1}/ Araba Fiyati  : {2}/  Araba Rengi   :{3}/ Araba Markası  : {4}", car.Description, car.ModelYear, car.DailyPrice,car.ColorName,car.BrandName);
             }
@@ -52,7 +52,7 @@ namespace ConsoleUI
         private static void BrandListText()
         {
             BrandManager brandManager = new BrandManager(new EfBrandDal());
-            foreach (var brand in brandManager.GetAll())
+            foreach (var brand in brandManager.GetAll().Data)
             {
                 Console.WriteLine("{0}/{1}",brand.BrandId.ToString(), brand.BrandName); 
             }
@@ -76,7 +76,7 @@ namespace ConsoleUI
         private static void ColorListText()
         {
             ColorManager colorManager = new ColorManager(new EfColorDal());
-            foreach (var color in colorManager.GetAll())
+            foreach (var color in colorManager.GetAll().Data)
             {
                 Console.WriteLine("{0}/{1}",color.ColorId,color.ColorName);
             }
