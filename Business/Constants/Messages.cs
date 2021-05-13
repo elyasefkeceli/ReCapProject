@@ -45,5 +45,11 @@ namespace Business.Constants
         public static string CustomerNameInvalid = "Müşteri ismi geçersiz...";
         //
         public static string OperationFailed = "Araç Mevcut Değil. ";
+
+        public static string ImageAdded = "Resim eklendi.";
+
+        public static string ImageDeleted = "Resim silindi.";
+
+        public static string ImageUpdated = "Resim güncellendi.";
     }
 }
