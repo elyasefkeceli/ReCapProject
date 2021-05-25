@@ -1,11 +1,16 @@
 ﻿using Business.Abstract;
 using Business.Constants;
+using Business.ValidationRules.FluentValidation;
+using Core.Aspects.Autofac.Validation;
+using Core.Utilities.Business;
+using Core.Utilities.Helpers;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concrete;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace Business.Concrete
@@ -18,38 +23,73 @@ namespace Business.Concrete
         {
             _CarImageDal = carImageDal;
         }
-
+        [ValidationAspect(typeof(CarImageValidator))]
         public IResult Add(IFormFile formFile, CarImage carImage)
         {
+            IResult result = BusinessRules.Run(CheckImageLimit(carImage.Id));
+            if (result !=null)
+            {
+                return result;
+            }
+            carImage.ImagePath = FileHelper.Add(formFile);
+            carImage.Date = DateTime.Now;
             _CarImageDal.Add(carImage);
             return new SuccessResult(Messages.ImageAdded);
         }
 
-        public IResult Delete(IFormFile formFile, CarImage carImage)
+        public IResult Delete(CarImage carImage)
         {
+            var image = _CarImageDal.Get(c => c.Id == carImage.Id);
+            if (image==null)
+            {
+                return new ErrorResult(Messages.CarImageNotFound);
+            }
+            FileHelper.Delete(image.ImagePath);
             _CarImageDal.Delete(carImage);
             return new SuccessResult(Messages.ImageDeleted);
         }
 
         public IDataResult<List<CarImage>> GetAll()
         {
-            throw new NotImplementedException();
+            return new SuccessDataResult<List<CarImage>>(_CarImageDal.GetAll(),Messages.CarImageListed);
         }
 
-        public IDataResult<List<CarImage>> GetById(int Id)
+        public IDataResult<List<CarImage>> GetById(int ImageId)
         {
-            throw new NotImplementedException();
+            return new SuccessDataResult<List<CarImage>>(_CarImageDal.GetAll(ı=>ı.ImageId==ImageId));
         }
 
-        public IDataResult<List<CarImage>> GetCarImagesById(int Id)
+        public IDataResult<List<CarImage>> GetCarImagesById(int ImageId)
         {
-            throw new NotImplementedException();
+            return new SuccessDataResult<List<CarImage>>(_CarImageDal.GetAll(ı=>ı.ImageId==ImageId));
         }
 
         public IResult Update(IFormFile formFile, CarImage carImage)
         {
+            IResult result = BusinessRules.Run(CheckImageLimit(carImage.Id));
+            if (result !=null)
+            {
+                return result;
+            }
+            var oldPath=Path.GetFullPath(Path.Combine(AppContext.BaseDirectory,"..\\..\\..\\wwwroot")) +_CarImageDal.Get(p => p.Id == carImage.Id).ImagePath;
+
+            carImage.ImagePath = FileHelper.Update(oldPath, formFile);
+            carImage.Date = DateTime.Now;
             _CarImageDal.Update(carImage);
             return new SuccessResult(Messages.ImageUpdated);
+        }
+        public IDataResult<CarImage> Get(int ImageId)
+        {
+            return new SuccessDataResult<CarImage>(_CarImageDal.Get(ı=>ı.Id==ImageId));
+        }
+        private IResult CheckImageLimit(int Id)
+        {
+            var result = _CarImageDal.GetAll(c => c.Id == Id).Count;
+            if (result>=5)
+            {
+                return new ErrorResult(Messages.CarImageLimitExceeded);
+            }
+            return new SuccessResult();
         }
     }
 }

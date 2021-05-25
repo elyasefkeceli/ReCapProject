@@ -51,5 +51,11 @@ namespace Business.Constants
         public static string ImageDeleted = "Resim silindi.";
 
         public static string ImageUpdated = "Resim güncellendi.";
+
+        public static string CarImageLimitExceeded = "Limit aşıldı.Araba resmi 5 den fazla yüklenemez.";
+
+        public static string CarImageNotFound = "Araba resmi bulunamadı.";
+
+        public static string CarImageListed = "Araba resmi listelendi.";
     }
 }
